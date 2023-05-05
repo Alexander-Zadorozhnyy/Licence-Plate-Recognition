@@ -84,20 +84,18 @@ class MRNET():
             workers=workers,
         )
 
-    def save(self, path='trained_models', name='weights'):
+    def save(self, path='trained_models'):
         # Create folders for trained models
         if not os.path.isdir(os.path.join(os.getcwd(), path)):
             os.makedirs(os.path.join(os.getcwd(), path))
-        if not os.path.isdir(os.path.join(os.getcwd(), path, name)):
-            os.makedirs(os.path.join(os.getcwd(), path, name))
 
         # Save model weights
-        self.model.save_weights(os.path.join(os.getcwd(), path, name, 'weights.h5'))
-        self.model.save(os.path.join(os.getcwd(), path, name, 'MRNET.h5'))
+        self.model.save_weights(os.path.join(os.getcwd(), path, 'weights.h5'))
 
-    def load(self, path='trained_models', name='example'):
-        #
-        self.model.load_weights(os.path.join(os.getcwd(), path, name, 'weights.h5'))
+    def load(self, path='trained_models'):
+        m = os.path.join(path, 'weights.h5')
+        print(m)
+        self.model.load_weights(m)
 
 
 if __name__ == "__main__":
