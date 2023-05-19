@@ -22,7 +22,7 @@ def get_parser_args():
                         default='valid_data_root', help='root path where to save model')
     parser.add_argument('--augment', type=bool,
                         default=False, help='enable data augmentation or not')
-    parser.add_argument('--saved_model_name', type=str,
+    parser.add_argument('--saved_model_path', type=str,
                         default=None, help='root path to saved_model')
     parser.add_argument('--save_csv', type=str,
                         default=None, help='save train and valid data dataset as csv')
@@ -58,12 +58,12 @@ def main(train_path, valid_path, augment, saved_model_name, save_csv):
                   )
 
     # Define callbacks
-    earlystopper = EarlyStopping(monitor='val_CER', patience=10, verbose=1)
-    checkpoint = ModelCheckpoint(f"{SAVE_MODEL_PATH}/model.h5", monitor='val_CER', verbose=1, save_best_only=True,
+    earlystopper = EarlyStopping(monitor='val_WER', patience=10, verbose=1)
+    checkpoint = ModelCheckpoint(f"{SAVE_MODEL_PATH}/model.h5", monitor='val_WER', verbose=1, save_best_only=True,
                                  mode='min')
     trainLogger = TrainLogger(f"{SAVE_MODEL_PATH}")
     tb_callback = TensorBoard(f'{SAVE_MODEL_PATH}/logs', update_freq=1)
-    reduceLROnPlat = ReduceLROnPlateau(monitor='val_CER', factor=0.9, min_delta=1e-10, patience=5, verbose=1,
+    reduceLROnPlat = ReduceLROnPlateau(monitor='val_WER', factor=0.9, min_delta=1e-10, patience=5, verbose=1,
                                        mode='auto')
     model2onnx = Model2onnx(f"{SAVE_MODEL_PATH}/model.h5")
 
@@ -75,7 +75,7 @@ def main(train_path, valid_path, augment, saved_model_name, save_csv):
                 validation_data=valid_dataloader,
                 epochs=EPOCH,
                 callbacks=[checkpoint, trainLogger, tb_callback, reduceLROnPlat, model2onnx],
-                workers=1,
+                workers=8,
                 )
 
     model.save(path=SAVE_MODEL_PATH)
@@ -87,12 +87,12 @@ def main(train_path, valid_path, augment, saved_model_name, save_csv):
 
 
 if __name__ == '__main__':
-    # train_path = "../../../datasets/ocr/train"
-    # valid_path = "../../../datasets/ocr/valid"
+    # main(train_path="../../../datasets/ocr/train",
+    #      valid_path="../../../datasets/ocr/valid", augment=True, save_csv=False, saved_model_name=None)
     args = get_parser_args()
     main(train_path=args['train_path'],
          valid_path=args['valid_path'],
          augment=args['augment'],
-         saved_model_name=args['saved_model_name'],
+         saved_model_name=args['saved_model_path'],
          save_csv=args['save_csv'],
          )

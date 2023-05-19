@@ -8,7 +8,7 @@ try:
 except:
     pass
 
-from model.model_utils import LightDepthwiseSeparableConvResidualBlock, FeatureFusionLayer, PredictionLayer
+from model_utils import LightDepthwiseSeparableConvResidualBlock, FeatureFusionLayer, PredictionLayer
 
 
 class MRNET():
@@ -26,25 +26,32 @@ class MRNET():
         x = layers.Conv2D(filters=16, kernel_size=(3, 3), padding='same')(input_img)
 
         # Layer1: LDWB x1
-        x = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name="LDWBx1")(x)
+        for i in range(1, 3):
+            x = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name=f"LDWBx1_{i}")(x)
 
         # MaxPooling
-        x = layers.MaxPooling2D(pool_size=(2, 2))(x)
+        x = layers.MaxPooling2D(pool_size=(2, 2), strides=2)(x)
 
         # Layer2: LDWB x1
-        l2 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name="LDWBx2")(x)
+        l2 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name="LDWBx2_1")(x)
+        for i in range(2, 5):
+            l2 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name=f"LDWBx2_{i}")(l2)
 
         # MaxPooling
-        x = layers.MaxPooling2D(pool_size=(2, 2))(l2)
+        x = layers.MaxPooling2D(pool_size=(2, 2), strides=2)(l2)
 
         # Layer3: LDWB x1
         l3 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name="LDWBx3")(x)
+        for i in range(2, 5):
+            l3 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name=f"LDWBx3_{i}")(l3)
 
         # MaxPooling
-        x = layers.MaxPooling2D(pool_size=(2, 2))(l3)
+        x = layers.MaxPooling2D(pool_size=(2, 2), strides=2)(l3)
 
         # Layer4: LDWB x1
         l4 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name="LDWBx4")(x)
+        for i in range(2, 3):
+            l4 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name=f"LDWBx4_{i}")(l4)
 
         # Feature fusion
         fused_features = FeatureFusionLayer(filters=128)(l2, l3, l4)
@@ -73,9 +80,12 @@ class MRNET():
                            optimizer=self.opt,
                            metrics=metrics,
                            loss=loss,
+                           # jit_compile=True,
                            )
 
     def train(self, train_data, validation_data, epochs, callbacks, workers):
+        # ct = train_data.__getitem__(0)
+        # print(ct)
         self.history = self.model.fit(
             train_data,
             validation_data=validation_data,
@@ -94,13 +104,13 @@ class MRNET():
 
     def load(self, path='trained_models'):
         m = os.path.join(path, 'weights.h5')
-        print(m)
+        # print(m)
         self.model.load_weights(m)
 
 
 if __name__ == "__main__":
     model = MRNET(symbol_count=23, input_shape=(48, 96, 3))
     model.build()
-    tf.keras.utils.plot_model(model.model, to_file="model.png",
-                              show_layer_names=True)
+    # tf.keras.utils.plot_model(model.model, to_file="model.png",
+    #                           show_layer_names=True)
     model.summary()
