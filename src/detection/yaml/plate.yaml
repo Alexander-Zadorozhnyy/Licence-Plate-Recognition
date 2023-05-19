@@ -1,0 +1,8 @@
+path: /main_dir
+train: dataset/train/images
+val: dataset/valid/images
+test: dataset/test/images,
+
+# Classes
+nc: 2  # number of classes
+names: ['licence_plate', 'vehicle']  # class names
