@@ -1,0 +1,12 @@
+tensorboard==2.12.3
+tensorflow==2.10.1
+keras==2.10.0
+mltu==1.0.8
+onnx==1.12.0
+numpy==1.20.3
+opencv-python==4.6.0.66
+imagededup==0.3.2
+ultralytics==8.0.100
+torch
+cvzone
+logging
