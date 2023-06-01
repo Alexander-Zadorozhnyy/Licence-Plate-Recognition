@@ -15,4 +15,4 @@ SYMBOLS = "0123456789ABEKMHOPCTYX"
 
 # Model path
 NAME = f"../pretrained_models/MRNET_150000_{EPOCH}ep_{BATCH}b"
-SAVE_MODEL_PATH = NAME + "-{:%m_%d_%H_%M}".format(datetime.now())
+SAVE_MODEL_PATH = f"{NAME}-{'{:%m_%d_%H_%M}'.format(datetime.now())}"

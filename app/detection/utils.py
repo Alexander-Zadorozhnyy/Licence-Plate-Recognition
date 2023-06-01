@@ -9,13 +9,13 @@ def is_in_interval(point, start, end):
 
 
 def is_plate(plate, vehicles):
-    x1, y1, x2, y2, conf = plate
+    x_1, y_1, x_2, y_2, conf = plate
     for vehicle in vehicles:
-        v_x1, v_y1, v_x2, v_y2, conf = vehicle
-        if is_in_interval(x1, v_x1, v_x2) \
-                and is_in_interval(x2, v_x1, v_x2) \
-                and is_in_interval(y1, v_y1, v_y2) \
-                and is_in_interval(y2, v_y1, v_y2):
+        v_x1, v_y1, v_x2, v_y2, _ = vehicle
+        if is_in_interval(x_1, v_x1, v_x2) \
+                and is_in_interval(x_2, v_x1, v_x2) \
+                and is_in_interval(y_1, v_y1, v_y2) \
+                and is_in_interval(y_2, v_y1, v_y2):
             return True
     return False
 
@@ -25,13 +25,13 @@ def highlight_licence_plate(detections, img, model_plate):
     for plate in detections['licence_plate']:
         if is_plate(plate, detections['vehicle']):
             plates += [plate]
-            x1, y1, x2, y2, conf = plate
-            w, h = x2 - x1, y2 - y1
-            img_r = img[y1:y2, x1:x2]
+            x_1, y_1, x_2, y_2, _ = plate
+            width, height = x_2 - x_1, y_2 - y_1
+            img_r = img[y_1:y_2, x_1:x_2]
             img_r = cv2.cvtColor(img_r, cv2.COLOR_RGB2GRAY)
             prediction_text = model_plate.predict(img_r)
-            cvzone.cornerRect(img, (x1, y1, w, h), l=9, rt=2, colorR=(255, 0, 255))
-            cvzone.putTextRect(img, f'{prediction_text}', (max(0, x1), max(35, y1 - 5)),
+            cvzone.cornerRect(img, (x_1, y_1, width, height), l=9, rt=2, colorR=(255, 0, 255))
+            cvzone.putTextRect(img, f'{prediction_text}', (max(0, x_1), max(35, y_1 - 5)),
                                scale=1.5, thickness=2, offset=2)
 
     return plates, img
@@ -39,27 +39,26 @@ def highlight_licence_plate(detections, img, model_plate):
 
 def get_all_detections(results, height, width):
     coef_h, coef_w = height / 512, width / 512
-    classNames = ["licence_plate", "vehicle"]
+    class_names = ["licence_plate", "vehicle"]
 
-    detections = {x: [] for x in classNames}
+    detections = {x: [] for x in class_names}
 
-    for r in results:
-        boxes = r.boxes
+    for res in results:
+        boxes = res.boxes
         for box in boxes:
             # Bounding Box
-            x1, y1, x2, y2 = box.xyxy[0]
-            x1, y1, x2, y2 = int(x1 * coef_w), int(y1 * coef_h), int(x2 * coef_w), int(y2 * coef_h)
+            x_1, y_1, x_2, y_2 = box.xyxy[0]
+            x_1, y_1, x_2, y_2 = int(x_1 * coef_w), int(y_1 * coef_h), int(x_2 * coef_w), int(y_2 * coef_h)
             # cv2.rectangle(img,(x1,y1),(x2,y2),(255,0,255),3)
-            w, h = x2 - x1, y2 - y1
 
             # Confidence
             conf = math.ceil((box.conf[0] * 100)) / 100
             # Class Name
             cls = int(box.cls[0])
-            currentClass = classNames[cls]
+            current_class = class_names[cls]
             # if currentClass == "vehicle" and conf > 0.2:
             #     continue
-            detections[currentClass].append([x1, y1, x2, y2, conf])
+            detections[current_class].append([x_1, y_1, x_2, y_2, conf])
 
     return detections
 
@@ -68,19 +67,19 @@ def highlight_all_detections(detections, img):
     # print(detections)
     for key, val in detections.items():
         for obj in val:
-            x1, y1, x2, y2, conf = obj
+            x_1, y_1, x_2, y_2, conf = obj
             # x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
             # print(obj)
-            w, h = x2 - x1, y2 - y1
+            width, height = x_2 - x_1, y_2 - y_1
             cvzone.cornerRect(img,
-                              (x1, y1, w, h),
+                              (x_1, y_1, width, height),
                               l=9,
                               rt=2,
                               colorR=(255, 0, 255) if key == "vehicle" else (255, 0, 0),
                               colorC=(0, 255, 0) if key == "vehicle" else (0, 0, 128))
             cvzone.putTextRect(img,
                                f'{key}-{conf}',
-                               (max(0, x1), max(35, y1 - 5)),
+                               (max(0, x_1), max(35, y_1 - 5)),
                                scale=1.5,
                                thickness=2,
                                offset=2,

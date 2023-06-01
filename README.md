@@ -65,7 +65,7 @@ pip install -r requirement.txt
 
 ##### Step5: Train YOLO model
 ```shell
-python -m src.detection.train --model model_name --yaml path_to_yaml --epoch number_of_epoch --imgsz size_of_images --batch bathc_size --augment True --quantization True
+python -m src.detection.train --model model_name --yaml path_to_yaml --epoch number_of_epoch --imgsz size_of_images --batch bathc_size --augment True
 ```
 
 ##### Step6: Configure src/recognition/config.py

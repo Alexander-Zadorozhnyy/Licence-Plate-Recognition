@@ -4,7 +4,7 @@ from tensorflow.keras import layers
 
 class LightDepthwiseSeparableConvResidualBlock(tf.keras.layers.Layer):
     def __init__(self, filters, **kwargs):
-        super(LightDepthwiseSeparableConvResidualBlock, self).__init__(**kwargs)
+        super().__init__()
         self.filters = filters
         self.branch1 = layers.DepthwiseConv2D(kernel_size=(3, 3), padding='same')
         self.branch2 = layers.Conv2D(filters, kernel_size=(1, 1), padding='same')
@@ -20,28 +20,30 @@ class LightDepthwiseSeparableConvResidualBlock(tf.keras.layers.Layer):
         })
         return config
 
-    def call(self, inputs):
-        x1 = self.branch1(inputs)
-        x1 = self.bn1(x1)
-        x2 = self.branch2(inputs)
-        x2 = self.bn2(x2)
+    def call(self, inputs, **kwargs):
+        x_one = self.branch1(inputs)
+        x_one = self.bn1(x_one)
+        x_two = self.branch2(inputs)
+        x_two = self.bn2(x_two)
 
         # print("X1: ", x1.shape)
-        x = self.conc([x1, x2])
+        _x = self.conc([x_one, x_two])
         # x = layers.Reshape((12, 24, 128))(x)
-        x = self.activation(x)
-        return x
+        _x = self.activation(_x)
+        return _x
 
 
 class MultiScaleFeatureFusion(tf.keras.layers.Layer):
     def __init__(self, filters, **kwargs):
-        super(MultiScaleFeatureFusion, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.filters = filters
         self.global_avg_pool = layers.GlobalAveragePooling2D()
         self.multiply = layers.Multiply()
         self.dense1 = layers.Dense(filters, activation="relu")
         self.dense2 = layers.Dense(filters * 3, activation="sigmoid")
-        self.conv = layers.Conv2D(filters=filters, kernel_size=(1, 1), padding='same')
+        self.conv = layers.Conv2D(filters=filters,
+                                  kernel_size=(1, 1),
+                                  padding='same')
 
     def get_config(self):
         config = super().get_config()
@@ -50,23 +52,26 @@ class MultiScaleFeatureFusion(tf.keras.layers.Layer):
         })
         return config
 
-    def call(self, inputs):
-        x = self.global_avg_pool(inputs)
+    def call(self, inputs, **kwargs):
+        _x = self.global_avg_pool(inputs)
 
-        x = self.dense1(x)
-        x = self.dense2(x)
+        _x = self.dense1(_x)
+        _x = self.dense2(_x)
 
-        x = self.multiply([inputs, x])
-        x = self.conv(x)
-        return x
+        _x = self.multiply([inputs, _x])
+        _x = self.conv(_x)
+        return _x
 
 
 class PredictionLayer(tf.keras.layers.Layer):
     def __init__(self, filters, **kwargs):
-        super(PredictionLayer, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.filters = filters
         self.avg_pool = layers.MaxPooling2D(pool_size=(1, 4))
-        self.d_conv = layers.SeparableConv2D(filters=filters, kernel_size=(3, 3), padding='same', activation="softmax")
+        self.d_conv = layers.SeparableConv2D(filters=filters,
+                                             kernel_size=(3, 3),
+                                             padding='same',
+                                             activation="softmax")
 
     def get_config(self):
         config = super().get_config()
@@ -75,23 +80,32 @@ class PredictionLayer(tf.keras.layers.Layer):
         })
         return config
 
-    def call(self, inputs):
-        x = self.avg_pool(inputs)
-        x = self.d_conv(x)
-        return x
+    def call(self, inputs, **kwargs):
+        _x = self.avg_pool(inputs)
+        _x = self.d_conv(_x)
+        return _x
 
 
 class FeatureFusionLayer(tf.keras.layers.Layer):
     def __init__(self, filters, **kwargs):
-        super(FeatureFusionLayer, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.filters = filters
-        self.mp = layers.MaxPooling2D(name="fuse_pool", pool_size=(2, 2))
-        self.p2 = layers.Conv2D(filters=filters, kernel_size=(1, 1), padding='same', name="P2")
+        self.max_pool = layers.MaxPooling2D(name="fuse_pool", pool_size=(2, 2))
+        self.p_two = layers.Conv2D(filters=filters,
+                                   kernel_size=(1, 1),
+                                   padding='same',
+                                   name="P2")
 
-        self.p3 = layers.Conv2D(filters=filters, kernel_size=(1, 1), padding='same', name="P3")
+        self.p_three = layers.Conv2D(filters=filters,
+                                     kernel_size=(1, 1),
+                                     padding='same',
+                                     name="P3")
 
-        self.us = layers.UpSampling2D(size=(2, 2))
-        self.p4 = layers.Conv2D(filters=filters, kernel_size=(1, 1), padding='same', name="P4")
+        self.up_sample = layers.UpSampling2D(size=(2, 2))
+        self.p_four = layers.Conv2D(filters=filters,
+                                    kernel_size=(1, 1),
+                                    padding='same',
+                                    name="P4")
 
         self.conc = layers.Concatenate(axis=3)  # 3
         self.msf = MultiScaleFeatureFusion(filters=128)
@@ -103,19 +117,19 @@ class FeatureFusionLayer(tf.keras.layers.Layer):
         })
         return config
 
-    def call(self, l2, l3, l4):
+    def call(self, l_two, l_three, l_four):
         # l2: MaxPooling and 1x1 convolution
-        p2 = self.mp(l2)
-        p2 = self.p2(p2)  # p2.shape[-1] * 2
+        p_two = self.max_pool(l_two)
+        p_two = self.p_two(p_two)  # p2.shape[-1] * 2
 
         # L3: 1x1 convolution
-        p3 = self.p3(l3)  # L3.shape[-1]
+        p_three = self.p_three(l_three)  # L3.shape[-1]
 
         # L4: Transposed convolution
-        p4 = self.us(l4)
-        p4 = self.p4(p4)
+        p_four = self.up_sample(l_four)
+        p_four = self.p_four(p_four)
 
         # Stack feature maps
-        p = self.conc([p2, p3, p4])
-        x = self.msf(p)
-        return x
+        stack = self.conc([p_two, p_three, p_four])
+        _x = self.msf(stack)
+        return _x

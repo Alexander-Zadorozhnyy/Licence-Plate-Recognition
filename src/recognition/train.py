@@ -3,7 +3,7 @@ import os
 
 import tensorflow as tf
 from keras.optimizers import Adam
-from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard
+from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 
 from mltu.tensorflow.metrics import CERMetric, WERMetric
 from mltu.tensorflow.callbacks import TrainLogger, Model2onnx
@@ -39,7 +39,8 @@ def main(train_path, valid_path, augment, saved_model_name, save_csv):
     dataloader.build(image_width=WIDTH, image_height=HEIGHT, batch=BATCH)
     dataloader.print_statistic()
 
-    model = MRNET(symbol_count=dataloader.get_num_characters() + 1, input_shape=(HEIGHT, WIDTH, CHANNELS))
+    model = MRNET(symbol_count=dataloader.get_num_characters() + 1,
+                  input_shape=(HEIGHT, WIDTH, CHANNELS))
     model.build()
 
     if saved_model_name is not None:
@@ -58,13 +59,20 @@ def main(train_path, valid_path, augment, saved_model_name, save_csv):
                   )
 
     # Define callbacks
-    earlystopper = EarlyStopping(monitor='val_WER', patience=10, verbose=1)
-    checkpoint = ModelCheckpoint(f"{SAVE_MODEL_PATH}/model.h5", monitor='val_WER', verbose=1, save_best_only=True,
+    # earlystopper = EarlyStopping(monitor='val_WER', patience=10, verbose=1)
+    checkpoint = ModelCheckpoint(f"{SAVE_MODEL_PATH}/model.h5",
+                                 monitor='val_WER',
+                                 verbose=1,
+                                 save_best_only=True,
                                  mode='min')
-    trainLogger = TrainLogger(f"{SAVE_MODEL_PATH}")
+    train_logger = TrainLogger(f"{SAVE_MODEL_PATH}")
     tb_callback = TensorBoard(f'{SAVE_MODEL_PATH}/logs', update_freq=1)
-    reduceLROnPlat = ReduceLROnPlateau(monitor='val_WER', factor=0.9, min_delta=1e-10, patience=5, verbose=1,
-                                       mode='auto')
+    reduce_lr_on_plat = ReduceLROnPlateau(monitor='val_WER',
+                                          factor=0.9,
+                                          min_delta=1e-10,
+                                          patience=5,
+                                          verbose=1,
+                                          mode='auto')
     model2onnx = Model2onnx(f"{SAVE_MODEL_PATH}/model.h5")
 
     train_dataloader = dataloader.get_train_dataloader()
@@ -74,7 +82,7 @@ def main(train_path, valid_path, augment, saved_model_name, save_csv):
     model.train(train_data=train_dataloader,
                 validation_data=valid_dataloader,
                 epochs=EPOCH,
-                callbacks=[checkpoint, trainLogger, tb_callback, reduceLROnPlat, model2onnx],
+                callbacks=[checkpoint, train_logger, tb_callback, reduce_lr_on_plat, model2onnx],
                 workers=8,
                 )
 
@@ -88,7 +96,10 @@ def main(train_path, valid_path, augment, saved_model_name, save_csv):
 
 if __name__ == '__main__':
     # main(train_path="../../../datasets/ocr/train",
-    #      valid_path="../../../datasets/ocr/valid", augment=True, save_csv=False, saved_model_name=None)
+    #      valid_path="../../../datasets/ocr/valid",
+    #      augment=True,
+    #      save_csv=False,
+    #      saved_model_name=None)
     args = get_parser_args()
     main(train_path=args['train_path'],
          valid_path=args['valid_path'],

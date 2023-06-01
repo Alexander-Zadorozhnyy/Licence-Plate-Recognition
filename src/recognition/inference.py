@@ -4,6 +4,7 @@ import time
 
 import cv2
 import numpy as np
+from matplotlib import pyplot as plt
 from mltu.utils.text_utils import get_cer, get_wer
 
 from src.recognition.predict import ImageToWordModel
@@ -26,10 +27,8 @@ def get_parser_args():
 
 
 def plot_examples(model, test_folder):
-    from matplotlib import pyplot as plt
-
     coef = 6
-    _, ax = plt.subplots(coef, coef, figsize=(10, 5))
+    _, axes = plt.subplots(coef, coef, figsize=(10, 5))
 
     for i, img in enumerate(os.listdir(test_folder)[:coef ** 2]):
         image_path = f"{test_folder}/{img}"
@@ -39,19 +38,18 @@ def plot_examples(model, test_folder):
         prediction_text = model.predict(image)
 
         img = (image * 255).astype(float)
-        ax[i // coef, i % coef].imshow(img[:, :], cmap="gray")
-        ax[i // coef, i % coef].set_title(prediction_text)
-        ax[i // coef, i % coef].axis("off")
+        axes[i // coef, i % coef].imshow(img[:, :], cmap="gray")
+        axes[i // coef, i % coef].set_title(prediction_text)
+        axes[i // coef, i % coef].axis("off")
 
     plt.show()
 
 
 def correct_inference(model, test_folder):
     all_c = len(os.listdir(test_folder))
-    c = 0
+    count = 0
 
     for img in os.listdir(test_folder):
-
         image_path = f"{test_folder}/{img}"
         label = img.split(".")[0]
         image = cv2.imread(image_path)
@@ -60,15 +58,14 @@ def correct_inference(model, test_folder):
         prediction_text = model.predict(image)
 
         wer = get_wer(prediction_text, label)
-        c = c + 1 if wer == 0 else c
+        count = count + 1 if wer == 0 else count
 
-    print(f"Inference right {c} of all {all_c}. Therefore right {c / all_c * 100}%")
+    print(f"Inference right {count} of all {all_c}. Therefore right {count / all_c * 100}%")
 
 
 def inference(model, test_folder):
-
     all_c = len(os.listdir(test_folder))
-    c = 0
+    count = 0
     accum_cer, accum_wer = [], []
 
     for img in os.listdir(test_folder):
@@ -88,7 +85,7 @@ def inference(model, test_folder):
         wer = get_wer(prediction_text, label)
 
         if wer == 0:
-            c += 1
+            count += 1
             print("Image: ", image_path)
             print("Label:", label)
             print("Prediction: ", prediction_text)
@@ -101,7 +98,7 @@ def inference(model, test_folder):
         accum_cer.append(cer)
         accum_wer.append(wer)
         print(f"Average CER: {np.average(accum_cer)}, Average WER: {np.average(accum_wer)}")
-    print(f"Inference right {c} of all {all_c}. Therefore right {c / all_c * 100}%")
+    print(f"Inference right {count} of all {all_c}. Therefore right {count / all_c * 100}%")
 
 
 if __name__ == "__main__":
@@ -120,5 +117,7 @@ if __name__ == "__main__":
     else:
         print("Choose 'all' or 'correct' mode")
 
-    # "E:\MachineLearningProjects\LicencePlateRecognition_ResearchProject\Licence-Plate-Recognition\src\pretrained_models\MRNET_100ep_512b-05_17_21_40"
-    # "E:/MachineLearningProjects/LicencePlateRecognition_ResearchProject/datasets/ocr_txt/test/img"
+    # "E:\MachineLearningProjects\LicencePlateRecognition_ResearchProject\
+    # Licence-Plate-Recognition\src\pretrained_models\MRNET_100ep_512b-05_17_21_40"
+    # "E:/MachineLearningProjects/LicencePlateRecognition_ResearchProject/
+    # datasets/ocr_txt/test/img"

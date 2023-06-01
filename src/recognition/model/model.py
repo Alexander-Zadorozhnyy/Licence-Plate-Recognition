@@ -3,12 +3,14 @@ import os
 import tensorflow as tf
 from tensorflow.keras import layers, Model
 
-try:
-    [tf.config.experimental.set_memory_growth(gpu, True) for gpu in tf.config.experimental.list_physical_devices('GPU')]
-except:
-    pass
+from model_utils import LightDepthwiseSeparableConvResidualBlock, \
+    FeatureFusionLayer, PredictionLayer
 
-from model_utils import LightDepthwiseSeparableConvResidualBlock, FeatureFusionLayer, PredictionLayer
+try:
+    [tf.config.experimental.set_memory_growth(gpu, True) for gpu in
+     tf.config.experimental.list_physical_devices('GPU')]
+except Exception as _:
+    pass
 
 
 class MRNET():
@@ -23,38 +25,45 @@ class MRNET():
         input_img = layers.Input(shape=self.input_shape, name="image")
 
         # 3x3 DSConv
-        x = layers.Conv2D(filters=16, kernel_size=(3, 3), padding='same')(input_img)
+        _x = layers.Conv2D(filters=16, kernel_size=(3, 3), padding='same')(input_img)
 
         # Layer1: LDWB x1
         for i in range(1, 3):
-            x = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name=f"LDWBx1_{i}")(x)
+            _x = LightDepthwiseSeparableConvResidualBlock(_x.shape[-1],
+                                                          name=f"LDWBx1_{i}")(_x)
 
         # MaxPooling
-        x = layers.MaxPooling2D(pool_size=(2, 2), strides=2)(x)
+        _x = layers.MaxPooling2D(pool_size=(2, 2), strides=2)(_x)
 
         # Layer2: LDWB x1
-        l2 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name="LDWBx2_1")(x)
+        l_two = LightDepthwiseSeparableConvResidualBlock(_x.shape[-1],
+                                                         name="LDWBx2_1")(_x)
         for i in range(2, 5):
-            l2 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name=f"LDWBx2_{i}")(l2)
+            l_two = LightDepthwiseSeparableConvResidualBlock(_x.shape[-1],
+                                                             name=f"LDWBx2_{i}")(l_two)
 
         # MaxPooling
-        x = layers.MaxPooling2D(pool_size=(2, 2), strides=2)(l2)
+        _x = layers.MaxPooling2D(pool_size=(2, 2), strides=2)(l_two)
 
         # Layer3: LDWB x1
-        l3 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name="LDWBx3")(x)
+        l_three = LightDepthwiseSeparableConvResidualBlock(_x.shape[-1],
+                                                           name="LDWBx3")(_x)
         for i in range(2, 5):
-            l3 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name=f"LDWBx3_{i}")(l3)
+            l_three = LightDepthwiseSeparableConvResidualBlock(_x.shape[-1],
+                                                               name=f"LDWBx3_{i}")(l_three)
 
         # MaxPooling
-        x = layers.MaxPooling2D(pool_size=(2, 2), strides=2)(l3)
+        _x = layers.MaxPooling2D(pool_size=(2, 2), strides=2)(l_three)
 
         # Layer4: LDWB x1
-        l4 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name="LDWBx4")(x)
+        l_four = LightDepthwiseSeparableConvResidualBlock(_x.shape[-1],
+                                                          name="LDWBx4")(_x)
         for i in range(2, 3):
-            l4 = LightDepthwiseSeparableConvResidualBlock(x.shape[-1], name=f"LDWBx4_{i}")(l4)
+            l_four = LightDepthwiseSeparableConvResidualBlock(_x.shape[-1],
+                                                              name=f"LDWBx4_{i}")(l_four)
 
         # Feature fusion
-        fused_features = FeatureFusionLayer(filters=128)(l2, l3, l4)
+        fused_features = FeatureFusionLayer(filters=128)(l_two, l_three, l_four)
 
         # Sequence decoder
         decoder_pre_result = PredictionLayer(self.symbol_count)(fused_features)
@@ -103,9 +112,8 @@ class MRNET():
         self.model.save_weights(os.path.join(os.getcwd(), path, 'weights.h5'))
 
     def load(self, path='trained_models'):
-        m = os.path.join(path, 'weights.h5')
-        # print(m)
-        self.model.load_weights(m)
+        _model = os.path.join(path, 'weights.h5')
+        self.model.load_weights(_model)
 
 
 if __name__ == "__main__":

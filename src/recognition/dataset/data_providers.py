@@ -1,9 +1,9 @@
 import copy
-import tensorflow as tf
+import logging
 
+import tensorflow as tf
 import numpy as np
 from mltu.dataProvider import DataProvider
-import logging
 
 from dataset.filters import GrayFilter
 
@@ -35,11 +35,11 @@ class MyDataProvider(DataProvider, tf.keras.utils.Sequence):
 
         # Then augment, transform and postprocess the batch data
         for objects in [self._augmentors, self._transformers]:
-            for object in objects:
-                data, annotation = object(data, annotation)
+            for _object in objects:
+                data, annotation = _object(data, annotation)
 
-        for object in self._transformers:
-            data_s, annotation_s = object(data_s, annotation_s)
+        for _object in self._transformers:
+            data_s, annotation_s = _object(data_s, annotation_s)
 
         to_gray_scale = GrayFilter()
         data_s, annotation_s = to_gray_scale(data_s, annotation_s)
@@ -49,7 +49,6 @@ class MyDataProvider(DataProvider, tf.keras.utils.Sequence):
             data = data.numpy()
 
         # Convert to numpy array if not already
-        # TODO: This is a hack, need to fix this
         if not isinstance(annotation, (np.ndarray, int, float, str, np.uint8, np.float)):
             annotation = annotation.numpy()
 
@@ -58,19 +57,18 @@ class MyDataProvider(DataProvider, tf.keras.utils.Sequence):
             data_s = data_s.numpy()
 
         # Convert to numpy array if not already
-        # TODO: This is a hack, need to fix this
         if not isinstance(annotation_s, (np.ndarray, int, float, str, np.uint8, np.float)):
             annotation_s = annotation_s.numpy()
 
         return [(data_s, annotation_s), (data, annotation)]
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, _index: int):
         """ Returns a batch of data by batch index"""
-        dataset_batch = self.get_batch_annotations(index)
+        dataset_batch = self.get_batch_annotations(_index)
 
         # First read and preprocess the batch data
         batch_data, batch_annotations = [], []
-        for index, batch in enumerate(dataset_batch):
+        for _index, batch in enumerate(dataset_batch):
             (data_s, annotation_s), (data, annotation) = self.process_data(batch)
 
             if data is None or annotation is None:

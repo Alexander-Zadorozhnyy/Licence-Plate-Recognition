@@ -25,13 +25,13 @@ def check(path):
 
 def main(path):
     ann_dir = Path(os.path.join(path, "ann"))
-    for i, js in enumerate(list(map(str, list(ann_dir.glob("*.json"))))):
-        with open(js) as f:
-            data = json.load(f)
+    for i, jsn in enumerate(list(map(str, list(ann_dir.glob("*.json"))))):
+        with open(jsn) as js_file:
+            data = json.load(js_file)
             label = data['description']
 
-            with open(js.replace(".json", ".txt"), "w") as f:
-                f.write(label)
+            with open(jsn.replace(".json", ".txt"), "w") as file:
+                file.write(label)
 
         if i % 500 == 0:
             print(f"Data loaded: {i}")
@@ -49,13 +49,23 @@ def del_useless(path):
 def rename(path, start):
     lst = os.listdir(os.path.join(path, "ann"))
     for i, k in enumerate(lst):
-        os.rename(os.path.join(path, "ann", k), os.path.join(path, "ann", f"{start + i}.txt"))
-        os.rename(os.path.join(path, "img", k.replace(".txt", ".png")), os.path.join(path, "img", f"{start + i}.png"))
+        os.rename(os.path.join(path,
+                               "ann",
+                               k),
+                  os.path.join(path,
+                               "ann",
+                               f"{start + i}.txt"))
+        os.rename(os.path.join(path,
+                               "img",
+                               k.replace(".txt", ".png")),
+                  os.path.join(path,
+                               "img",
+                               f"{start + i}.png"))
 
 
 def color_inversion(path):
     lst = os.listdir(os.path.join(path, "img"))
-    for i, k in enumerate(lst):
+    for k in lst:
         img = cv2.imread(os.path.join(path, "img", k))
         invert = cv2.bitwise_not(img)
         cv2.imwrite(os.path.join(path, "img", k), invert)

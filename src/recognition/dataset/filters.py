@@ -1,9 +1,10 @@
+import logging
+import typing
+
 import cv2
 from mltu import Image
 from mltu.augmentors import Augmentor, randomness_decorator
-import typing
 import numpy as np
-import logging
 
 
 class GrayFilter(Augmentor):
@@ -16,11 +17,12 @@ class GrayFilter(Augmentor):
         """ Randomly adjust image brightness
 
         Args:
-            random_chance (float, optional): Chance of applying the augmentor. Where 0.0 is never and 1.0 is always. Defaults to 0.5.
+            random_chance (float, optional): Chance of applying the augmentor.
+            Where 0.0 is never and 1.0 is always. Defaults to 0.5.
             delta (int, optional): Integer value for brightness adjustment. Defaults to 100.
             log_level (int, optional): Log level for the augmentor. Defaults to logging.INFO.
         """
-        super(GrayFilter, self).__init__(1, log_level)
+        super().__init__(1, log_level)
 
     @randomness_decorator
     def __call__(self, image: Image, annotation: typing.Any) -> typing.Tuple[Image, typing.Any]:
@@ -53,11 +55,12 @@ class EdgeFilter(Augmentor):
         """ Randomly adjust image brightness
 
         Args:
-            random_chance (float, optional): Chance of applying the augmentor. Where 0.0 is never and 1.0 is always. Defaults to 0.5.
+            random_chance (float, optional): Chance of applying the augmentor.
+            Where 0.0 is never and 1.0 is always. Defaults to 0.5.
             delta (int, optional): Integer value for brightness adjustment. Defaults to 100.
             log_level (int, optional): Log level for the augmentor. Defaults to logging.INFO.
         """
-        super(EdgeFilter, self).__init__(1, log_level)
+        super().__init__(1, log_level)
 
     @randomness_decorator
     def __call__(self, image: Image, annotation: typing.Any) -> typing.Tuple[Image, typing.Any]:

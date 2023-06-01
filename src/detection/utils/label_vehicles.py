@@ -4,15 +4,18 @@ import os
 
 from ultralytics import YOLO
 
-CLASSNAMES = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
-              "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
-              "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
-              "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat",
-              "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup",
-              "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli",
-              "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed",
-              "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone",
-              "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
+CLASSNAMES = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train",
+              "truck", "boat", "traffic light", "fire hydrant", "stop sign",
+              "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep",
+              "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
+              "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard",
+              "sports ball", "kite", "baseball bat", "baseball glove",
+              "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup",
+              "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange",
+              "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa",
+              "pottedplant", "bed", "diningtable", "toilet", "tvmonitor", "laptop",
+              "mouse", "remote", "keyboard", "cell phone", "microwave", "oven",
+              "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
               "teddy bear", "hair drier", "toothbrush"
               ]
 
@@ -32,9 +35,9 @@ def label_vehicles(model, path, conf_treshold):
              os.path.join(path, "valid"),
              ]
 
-    for path in paths:
-        img_path = os.path.join(os.getcwd(), path, "images")
-        label_path = os.path.join(os.getcwd(), path, "labels")
+    for p in paths:
+        img_path = os.path.join(os.getcwd(), p, "images")
+        label_path = os.path.join(os.getcwd(), p, "labels")
         images = os.listdir(img_path)
 
         for img in images:
@@ -43,8 +46,8 @@ def label_vehicles(model, path, conf_treshold):
             # Use the model
             results = model(os.path.join(img_path, img), stream=True)
 
-            for r in results:
-                boxes = r.boxes
+            for res in results:
+                boxes = res.boxes
                 for box in boxes:
                     # Bounding Box
                     coords = list(map(float, box.xywhn[0]))
@@ -54,29 +57,28 @@ def label_vehicles(model, path, conf_treshold):
 
                     # Class Name
                     cls = int(box.cls[0])
-                    currentClass = CLASSNAMES[cls]
+                    current_class = CLASSNAMES[cls]
 
-                    if (currentClass == "car" or currentClass == "truck"
-                        or currentClass == "bus" or currentClass == "motorbike") \
-                            and conf > conf_treshold:
+                    if current_class in ("car", "truck", "bus", "motorbike") and conf > conf_treshold:
                         detections.append(coords)
 
-            with open(os.path.join(label_path, f"{'.'.join(img.split('.')[:-1])}.txt"), mode='r+') as f:
-                file = f.read()
-                for d in detections:
+            with open(os.path.join(label_path, f"{'.'.join(img.split('.')[:-1])}.txt"),
+                      mode='r+') as file_orig:
+                file = file_orig.read()
+                for detect in detections:
                     if file != "":
-                        f.write(f'\n1 {" ".join(["%.3f" % i for i in d])}')
+                        file_orig.write(f'\n1 {" ".join(["%.3f" % i for i in detect])}')
                     else:
-                        f.write(f'1 {" ".join(["%.3f" % i for i in d])}')
+                        file_orig.write(f'1 {" ".join(["%.3f" % i for i in detect])}')
 
-        print(f'Folder {path} done!')
+        print(f'Folder {p} done!')
 
 
 if __name__ == '__main__':
     # Load a model
     model = YOLO("weights/yolov8x.pt")
 
-    label_vehicles(model, "512_all")
+    label_vehicles(model, "512_all", 0.3)
 
     args = get_parser_args()
     label_vehicles(

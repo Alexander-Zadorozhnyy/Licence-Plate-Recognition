@@ -9,15 +9,15 @@ def get_parser_args():
     return vars(parser.parse_args())
 
 
-def delete_unpair_files(path):
-    paths = [os.path.join(path, "train"),
-             os.path.join(path, "test"),
-             os.path.join(path, "valid"),
+def delete_unpair_files(_path):
+    paths = [os.path.join(_path, "train"),
+             os.path.join(_path, "test"),
+             os.path.join(_path, "valid"),
              ]
 
-    for path in paths:
-        img_path = os.path.join(os.getcwd(), path, "images")
-        label_path = os.path.join(os.getcwd(), path, "labels")
+    for _path in paths:
+        img_path = os.path.join(os.getcwd(), _path, "images")
+        label_path = os.path.join(os.getcwd(), _path, "labels")
 
         images = os.listdir(img_path)
         img_txt = list(map(lambda x: ".".join(x.split(".")[:-1]) + ".txt", images))
@@ -26,22 +26,22 @@ def delete_unpair_files(path):
         singles = list(set(labels) - set(img_txt))
         singles_rev = list(set(img_txt) - set(labels))
 
-        for s in singles:
-            os.remove(os.path.join(label_path, s))
+        for single in singles:
+            os.remove(os.path.join(label_path, single))
 
-        for s in singles_rev:
-            if s.replace('txt', "jpg") in images:
-                os.remove(os.path.join(img_path, s.replace('txt', "jpg")))
-            if s.replace('txt', "jpeg") in images:
-                os.remove(os.path.join(img_path, s.replace('txt', "jpeg")))
-            if s.replace('txt', "png") in images:
-                os.remove(os.path.join(img_path, s.replace('txt', "png")))
+        for single in singles_rev:
+            if single.replace('txt', "jpg") in images:
+                os.remove(os.path.join(img_path, single.replace('txt', "jpg")))
+            if single.replace('txt', "jpeg") in images:
+                os.remove(os.path.join(img_path, single.replace('txt', "jpeg")))
+            if single.replace('txt', "png") in images:
+                os.remove(os.path.join(img_path, single.replace('txt', "png")))
 
-        print(f'Folder {path} done!')
+        print(f'Folder {_path} done!')
 
 
 if __name__ == '__main__':
     args = get_parser_args()
     delete_unpair_files(
-        path=args['path'],
+        _path=args['path'],
     )

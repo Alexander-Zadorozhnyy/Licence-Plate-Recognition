@@ -1,7 +1,8 @@
 from ultralytics import YOLO
 import cv2
 
-from app.detection.utils import get_all_detections, highlight_licence_plate, highlight_all_detections
+from app.detection.utils import get_all_detections, \
+    highlight_licence_plate, highlight_all_detections
 from src.recognition.predict import ImageToWordModel
 
 
@@ -9,7 +10,8 @@ def default_video_plate_detection(source, model):
     model.predict(source, save=True, imgsz=512, conf=0.1, visualize=True)
 
 
-def modified_video_plate_recognition(source, detection_model, recognition_model, size=512, mode="all"):
+def modified_video_plate_recognition(source, detection_model,
+                                     recognition_model, size=512, mode="all"):
     cap = cv2.VideoCapture(source)  # For Video
     # Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -23,7 +25,7 @@ def modified_video_plate_recognition(source, detection_model, recognition_model,
         img_copy = img.copy()
         img_p = None
 
-        height, width, channels = img.shape
+        height, width, _ = img.shape
         img = cv2.resize(img, dsize=(size, size))
 
         results = detection_model(img, stream=True, task="detect", imgsz=(512, 512))
@@ -55,7 +57,8 @@ if __name__ == '__main__':
     )
 
     # default_video_plate_detection(
-    #     source="E:/MachineLearningProjects/LicencePlateRecognition_ResearchProject/yolov8/data/videos/real_example.mp4",
+    #     source="E:/MachineLearningProjects/
+    #     LicencePlateRecognition_ResearchProject/yolov8/data/videos/real_example.mp4",
     #     model=detection)
 
     modified_video_plate_recognition(source="../data/videos/example.mp4",

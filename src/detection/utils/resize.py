@@ -13,14 +13,14 @@ def get_parser_args():
     return vars(parser.parse_args())
 
 
-def resize_images(path, imgsz):
-    paths = [os.path.join(path, "train"),
-             os.path.join(path, "test"),
-             os.path.join(path, "valid"),
+def resize_images(path_folder, imgsz):
+    paths = [os.path.join(path_folder, "train"),
+             os.path.join(path_folder, "test"),
+             os.path.join(path_folder, "valid"),
              ]
 
-    for path in paths:
-        img_path = os.path.join(os.getcwd(), path, "images")
+    for path_folder in paths:
+        img_path = os.path.join(os.getcwd(), path_folder, "images")
         images = os.listdir(img_path)
 
         for img in images:
@@ -29,12 +29,12 @@ def resize_images(path, imgsz):
 
             cv2.imwrite(os.path.join(img_path, img), img_r)
 
-        print(f'Folder {path} done!')
+        print(f'Folder {path_folder} done!')
 
 
 if __name__ == '__main__':
     args = get_parser_args()
     resize_images(
-        path=args['path'],
+        path_folder=args['path'],
         imgsz=args['imgsz'],
     )

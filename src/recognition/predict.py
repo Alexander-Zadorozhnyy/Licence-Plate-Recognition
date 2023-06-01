@@ -9,7 +9,10 @@ from src.recognition.config import SYMBOLS
 class ImageToWordModel(OnnxInferenceModel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.char_list = sorted([i for i in SYMBOLS])
+        self.char_list = sorted(list(SYMBOLS))
+
+    def get_list_char(self):
+        return self.char_list
 
     def predict(self, image: np.ndarray):
         image = ImageResizer.resize_maintaining_aspect_ratio(image, *self.input_shape[:2][::-1])

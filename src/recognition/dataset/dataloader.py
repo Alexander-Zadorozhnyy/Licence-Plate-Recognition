@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from mltu.preprocessors import ImageReader
 from mltu.tensorflow.dataProvider import DataProvider
@@ -14,8 +15,8 @@ class Dataloader:
         self.train_path = train_path
         self.val_path = val_path
         self.augment = augment
-        self.characters = sorted([i for i in symbols])
-        self._data = dict()
+        self.characters = sorted(list(symbols))
+        self._data = {}
         self._train_data_loader = None
         self._valid_data_loader = None
 
@@ -35,7 +36,7 @@ class Dataloader:
         print("Number of unique characters: ", self.get_num_characters())
         print("Characters present: ", self.characters)
 
-        print("Max/Min length of labels: {0}/{1}".format(*self.get_max_min_length_of_labels()))
+        print(f"Max/Min length of labels: {'/'.join(*self.get_max_min_length_of_labels())}")
 
     def apply_augment(self):
         # Augment training data with random brightness, rotation and erode/dilate, gaussian blur
@@ -73,25 +74,25 @@ class Dataloader:
 
     def get_max_min_length_of_labels(self):
         # Maximum length of any captcha in the dataset
-        max_length = max([len(label) for label in self._data['y_train'] + self._data['y_valid']])
-        min_length = min([len(label) for label in self._data['y_train'] + self._data['y_valid']])
+        max_length = max([len(label) for label in (self._data['y_train'] + self._data['y_valid'])])
+        min_length = min([len(label) for label in (self._data['y_train'] + self._data['y_valid'])])
         return max_length, min_length
 
     def create_dataset(self, dir_type):
-        from pathlib import Path
         # Get dataset of all the images and labels in train folder
-        x = []
-        y = []
-        ann_dir = Path(os.path.join(os.getcwd(), self.train_path, "ann")) if dir_type == "train" else Path(
-            os.path.join(os.getcwd(), self.val_path, "ann"))
-        for i, js in enumerate(list(map(str, list(ann_dir.glob("*.txt"))))):
-            with open(js, "r") as f:
-                label = f.read()
-                x.append(js.replace("ann", "img").replace(".txt", ".png"))
-                y.append(label)
+        images = []
+        annotations = []
+        ann_dir = Path(os.path.join(os.getcwd(),
+                                    self.train_path, "ann")) if dir_type == "train" \
+            else Path(os.path.join(os.getcwd(), self.val_path, "ann"))
+        for i, js_file in enumerate(list(map(str, list(ann_dir.glob("*.txt"))))):
+            with open(js_file, "r") as file:
+                label = file.read()
+                images.append(js_file.replace("ann", "img").replace(".txt", ".png"))
+                annotations.append(label)
             if i % 2500 == 0:
                 print(f"Data loaded: {i}")
-        return x, y
+        return images, annotations
         # y_train = [(img.split(os.path.sep)[-1].split(".png")[0]) for img in x_train]
         # train_dataset = [[x_train[k], y_train[k]] for k in range(len(x_train))]
         # self._data['x_train'] = x_train
@@ -113,11 +114,11 @@ class Dataloader:
         # self._data['x_train'] = x_train
         # self._data['y_train'] = y_train
         # print(x_train, y_train, sep="\n\n\n\n")
-        x, y = self.create_dataset("train")
-        # print(x, y, sep="\n\n\n\n")
-        train_dataset = [[x[k], y[k]] for k in range(len(x))]
-        self._data['x_train'] = x
-        self._data['y_train'] = y
+        images, annotations = self.create_dataset("train")
+        # print(images, annotations, sep="\n\n\n\n")
+        train_dataset = [[images[k], annotations[k]] for k in range(len(images))]
+        self._data['x_train'] = images
+        self._data['y_train'] = annotations
 
         # Get dataset of all the images and labels in valid folder
         # x_valid = sorted(list(map(str, list(val_dir.glob("*.png")))))
@@ -126,10 +127,10 @@ class Dataloader:
         # self._data['x_valid'] = x_valid
         # self._data['y_valid'] = y_valid
 
-        x, y = self.create_dataset("valid")
-        val_dataset = [[x[k], y[k]] for k in range(len(x))]
-        self._data['x_valid'] = x
-        self._data['y_valid'] = y
+        images, annotations = self.create_dataset("valid")
+        val_dataset = [[images[k], annotations[k]] for k in range(len(images))]
+        self._data['x_valid'] = images
+        self._data['y_valid'] = annotations
 
         # Create a data provider for the dataset
         self._train_data_loader = MyDataProvider(

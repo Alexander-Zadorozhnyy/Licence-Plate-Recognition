@@ -10,13 +10,14 @@ from src.recognition.predict import ImageToWordModel
 def get_parser_args():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--source', type=str,
-                        default="../data/images/example.jpg", help='root path to input file')
+                        default="../data/images/example.jpg",
+                        help='root path to input file')
     parser.add_argument('--detection_model', type=str,
-                        default="../src/pretrained_models/YOLOv8s_detection.pt", help='root path to saved detection '
-                                                                                      'model or standard yolo model')
+                        default="../src/pretrained_models/YOLOv8s_detection.pt",
+                        help='root path to saved detection model or standard yolo model')
     parser.add_argument('--recognition_model', type=str,
-                        default="../src/pretrained_models/MRNet_recognition", help='root path to saved recognition '
-                                                                                   'model or standard yolo model')
+                        default="../src/pretrained_models/MRNet_recognition",
+                        help='root path to saved recognition model or standard yolo model')
     parser.add_argument('--size', type=int,
                         default=512, help='image transform size')
 
