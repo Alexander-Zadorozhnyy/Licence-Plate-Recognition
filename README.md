@@ -91,7 +91,7 @@ Licence Plate Recognizer
 
 ## Documentation
 
-> You can check some details about this solver in the [docs](https://github.com/Alexander-Zadorozhnyy/Licence-Plate-Recognition/docs) directory:
+> You can check some details about this solver in the [docs](https://github.com/Alexander-Zadorozhnyy/Licence-Plate-Recognition/tree/main/docs) directory:
 > - docs/report.pdf - educational practice's report (RU)
 
 ## Authors
