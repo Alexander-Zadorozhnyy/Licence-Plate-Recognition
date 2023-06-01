@@ -100,5 +100,5 @@ Licence Plate Recognizer
 
 ## License
 
-Source code of this repository is released under
+Source code of this repository is released under 
 the [Apache-2.0 license](https://choosealicense.com/licenses/apache-2.0/)
