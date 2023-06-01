@@ -3,8 +3,8 @@ from tensorflow.keras import layers
 
 
 class LightDepthwiseSeparableConvResidualBlock(tf.keras.layers.Layer):
-    def __init__(self, filters):
-        super().__init__()
+    def __init__(self, filters, **kwargs):
+        super().__init__(**kwargs)
         self.filters = filters
         self.branch1 = layers.DepthwiseConv2D(kernel_size=(3, 3), padding='same')
         self.branch2 = layers.Conv2D(filters, kernel_size=(1, 1), padding='same')

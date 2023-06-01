@@ -1,6 +1,5 @@
 import os
 
-import tensorflow as tf
 from tensorflow.keras import layers, Model
 
 from model_utils import LightDepthwiseSeparableConvResidualBlock, \
