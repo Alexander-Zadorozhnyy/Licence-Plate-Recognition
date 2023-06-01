@@ -7,7 +7,7 @@ from mltu.transformers import ImageResizer, LabelIndexer, LabelPadding
 from mltu.augmentors import RandomBrightness, RandomErodeDilate, RandomSharpen, RandomGaussianBlur
 
 from dataset.filters import GrayFilter, EdgeFilter
-from dataset.DataProviders import MyDataProvider
+from dataset.data_providers import MyDataProvider
 
 
 class Dataloader:
@@ -74,8 +74,8 @@ class Dataloader:
 
     def get_max_min_length_of_labels(self):
         # Maximum length of any captcha in the dataset
-        max_length = max([len(label) for label in (self._data['y_train'] + self._data['y_valid'])])
-        min_length = min([len(label) for label in (self._data['y_train'] + self._data['y_valid'])])
+        max_length = max(len(label) for label in self._data['y_train'] + self._data['y_valid'])
+        min_length = min(len(label) for label in self._data['y_train'] + self._data['y_valid'])
         return max_length, min_length
 
     def create_dataset(self, dir_type):

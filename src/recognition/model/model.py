@@ -6,12 +6,6 @@ from tensorflow.keras import layers, Model
 from model_utils import LightDepthwiseSeparableConvResidualBlock, \
     FeatureFusionLayer, PredictionLayer
 
-try:
-    [tf.config.experimental.set_memory_growth(gpu, True) for gpu in
-     tf.config.experimental.list_physical_devices('GPU')]
-except Exception as _:
-    pass
-
 
 class MRNET():
     def __init__(self, symbol_count, input_shape=(48, 96, 1)):

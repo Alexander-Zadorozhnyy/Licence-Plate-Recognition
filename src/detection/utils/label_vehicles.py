@@ -35,9 +35,9 @@ def label_vehicles(model, path, conf_treshold):
              os.path.join(path, "valid"),
              ]
 
-    for p in paths:
-        img_path = os.path.join(os.getcwd(), p, "images")
-        label_path = os.path.join(os.getcwd(), p, "labels")
+    for _path in paths:
+        img_path = os.path.join(os.getcwd(), _path, "images")
+        label_path = os.path.join(os.getcwd(), _path, "labels")
         images = os.listdir(img_path)
 
         for img in images:
@@ -59,7 +59,8 @@ def label_vehicles(model, path, conf_treshold):
                     cls = int(box.cls[0])
                     current_class = CLASSNAMES[cls]
 
-                    if current_class in ("car", "truck", "bus", "motorbike") and conf > conf_treshold:
+                    if current_class in ("car", "truck", "bus", "motorbike") \
+                            and conf > conf_treshold:
                         detections.append(coords)
 
             with open(os.path.join(label_path, f"{'.'.join(img.split('.')[:-1])}.txt"),
@@ -67,11 +68,11 @@ def label_vehicles(model, path, conf_treshold):
                 file = file_orig.read()
                 for detect in detections:
                     if file != "":
-                        file_orig.write(f'\n1 {" ".join(["%.3f" % i for i in detect])}')
+                        file_orig.write(f"\n1 {' '.join(['%.3f' % i for i in detect])}")
                     else:
-                        file_orig.write(f'1 {" ".join(["%.3f" % i for i in detect])}')
+                        file_orig.write(f"1 {' '.join(['%.3f' % i for i in detect])}")
 
-        print(f'Folder {p} done!')
+        print(f'Folder {_path} done!')
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ def is_in_interval(point, start, end):
 
 
 def is_plate(plate, vehicles):
-    x_1, y_1, x_2, y_2, conf = plate
+    x_1, y_1, x_2, y_2, _ = plate
     for vehicle in vehicles:
         v_x1, v_y1, v_x2, v_y2, _ = vehicle
         if is_in_interval(x_1, v_x1, v_x2) \
@@ -48,7 +48,8 @@ def get_all_detections(results, height, width):
         for box in boxes:
             # Bounding Box
             x_1, y_1, x_2, y_2 = box.xyxy[0]
-            x_1, y_1, x_2, y_2 = int(x_1 * coef_w), int(y_1 * coef_h), int(x_2 * coef_w), int(y_2 * coef_h)
+            x_1, y_1, x_2, y_2 = int(x_1 * coef_w), int(y_1 * coef_h), \
+                int(x_2 * coef_w), int(y_2 * coef_h)
             # cv2.rectangle(img,(x1,y1),(x2,y2),(255,0,255),3)
 
             # Confidence

@@ -3,7 +3,7 @@ from tensorflow.keras import layers
 
 
 class LightDepthwiseSeparableConvResidualBlock(tf.keras.layers.Layer):
-    def __init__(self, filters, **kwargs):
+    def __init__(self, filters):
         super().__init__()
         self.filters = filters
         self.branch1 = layers.DepthwiseConv2D(kernel_size=(3, 3), padding='same')
@@ -20,7 +20,7 @@ class LightDepthwiseSeparableConvResidualBlock(tf.keras.layers.Layer):
         })
         return config
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs):
         x_one = self.branch1(inputs)
         x_one = self.bn1(x_one)
         x_two = self.branch2(inputs)
@@ -52,7 +52,7 @@ class MultiScaleFeatureFusion(tf.keras.layers.Layer):
         })
         return config
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs):
         _x = self.global_avg_pool(inputs)
 
         _x = self.dense1(_x)
@@ -80,7 +80,7 @@ class PredictionLayer(tf.keras.layers.Layer):
         })
         return config
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs):
         _x = self.avg_pool(inputs)
         _x = self.d_conv(_x)
         return _x

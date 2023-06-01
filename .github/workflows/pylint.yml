@@ -20,4 +20,4 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint --disable=C0116,C0115,C0114,R1732,R0801,R0902,R0903,R0913,R0914,E0401,E1121,W0621,W1514 `find -regextype egrep -regex '(.*.py)$'`
+        pylint --disable=C0116,C0115,C0114,C0209,R1732,R0801,R0902,R0903,R0913,R0914,E0401,E1121,W0621,W1514 `find -regextype egrep -regex '(.*.py)$'`

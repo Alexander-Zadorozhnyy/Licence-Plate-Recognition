@@ -11,9 +11,6 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s: %(message)s')
 
 
 class MyDataProvider(DataProvider, tf.keras.utils.Sequence):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def process_data(self, batch_data):
         """ Process data batch of data """
         if self._use_cache and batch_data[0] in self._cache:

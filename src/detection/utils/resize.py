@@ -19,8 +19,8 @@ def resize_images(path_folder, imgsz):
              os.path.join(path_folder, "valid"),
              ]
 
-    for path_folder in paths:
-        img_path = os.path.join(os.getcwd(), path_folder, "images")
+    for _path_folder in paths:
+        img_path = os.path.join(os.getcwd(), _path_folder, "images")
         images = os.listdir(img_path)
 
         for img in images:
@@ -29,7 +29,7 @@ def resize_images(path_folder, imgsz):
 
             cv2.imwrite(os.path.join(img_path, img), img_r)
 
-        print(f'Folder {path_folder} done!')
+        print(f'Folder {_path_folder} done!')
 
 
 if __name__ == '__main__':

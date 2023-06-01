@@ -2,8 +2,8 @@ import argparse
 
 from ultralytics import YOLO
 
-from detection.Image import modified_image_plate_recognition
-from detection.Video import modified_video_plate_recognition
+from detection.image import modified_image_plate_recognition
+from detection.video import modified_video_plate_recognition
 from src.recognition.predict import ImageToWordModel
 
 
@@ -41,7 +41,7 @@ def main(source, detection_model, recognition_model, size, mode):
                                          recognition_model=recognition,
                                          size=size,
                                          mode=mode)
-    if any([x in source for x in ['.png', '.jpeg', '.jpg']]):
+    if any(x in source for x in ['.png', '.jpeg', '.jpg']):
         modified_image_plate_recognition(source=source,
                                          detection_model=detection,
                                          recognition_model=recognition,
